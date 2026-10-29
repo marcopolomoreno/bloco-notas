@@ -291,6 +291,7 @@ name = "bloco-notas"
 version = "0.1.0"
 dependencies = [
  "encoding_rs",
+ "objc2",
  "serde",
  "tauri",
  "tauri-build",

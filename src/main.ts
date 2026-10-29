@@ -25,6 +25,8 @@ async function start() {
 
   // Fechar a janela não pergunta nada: a sessão é gravada e restaurada depois.
   await getCurrentWindow().onCloseRequested(() => app.flush());
+  // No Mac, encerrar pelo Dock ou ao desligar chega por aqui (veja mac_quit no Rust).
+  if (isMac) await listen("quit-requested", () => void app.quit());
   window.addEventListener("blur", () => void app.flush());
   window.addEventListener("focus", () => void app.checkExternalChanges());
 }

@@ -214,7 +214,87 @@ fn take_pending_files(pending: State<PendingFiles>) -> Vec<String> {
 
 #[tauri::command]
 fn quit(app: AppHandle) {
+    #[cfg(target_os = "macos")]
+    if mac_quit::allow() {
+        return;
+    }
     app.exit(0);
+}
+
+/// No macOS, encerrar pelo Dock, pelo seletor de apps ou ao desligar o Mac
+/// chama `-[NSApplication terminate:]`, que não passa pela interface. O tao
+/// não implementa `applicationShouldTerminate:`; aqui ele adia o encerramento
+/// até a interface gravar a sessão e chamar `quit`.
+#[cfg(target_os = "macos")]
+mod mac_quit {
+    use std::{
+        sync::{
+            atomic::{AtomicBool, Ordering},
+            OnceLock,
+        },
+        thread,
+        time::Duration,
+    };
+
+    use objc2::{
+        class, ffi, msg_send,
+        runtime::{AnyClass, AnyObject, Bool, Imp, Sel},
+        sel,
+    };
+    use tauri::{AppHandle, Emitter};
+
+    const TERMINATE_NOW: usize = 1;
+    const TERMINATE_LATER: usize = 2;
+
+    static APP: OnceLock<AppHandle> = OnceLock::new();
+    static WAITING: AtomicBool = AtomicBool::new(false);
+
+    extern "C-unwind" fn should_terminate(_: *mut AnyObject, _: Sel, _: *mut AnyObject) -> usize {
+        let Some(app) = APP.get() else {
+            return TERMINATE_NOW;
+        };
+        WAITING.store(true, Ordering::SeqCst);
+        let _ = app.emit("quit-requested", ());
+        // Se a interface não responder, encerra assim mesmo.
+        let app = app.clone();
+        thread::spawn(move || {
+            thread::sleep(Duration::from_secs(3));
+            let _ = app.run_on_main_thread(|| {
+                allow();
+            });
+        });
+        TERMINATE_LATER
+    }
+
+    /// Libera um encerramento adiado; devolve false se não havia nenhum.
+    pub fn allow() -> bool {
+        if !WAITING.swap(false, Ordering::SeqCst) {
+            return false;
+        }
+        unsafe {
+            let ns_app: *mut AnyObject = msg_send![class!(NSApplication), sharedApplication];
+            let _: () = msg_send![ns_app, replyToApplicationShouldTerminate: Bool::YES];
+        }
+        true
+    }
+
+    pub fn install(app: &AppHandle) {
+        let _ = APP.set(app.clone());
+        unsafe {
+            let ns_app: *mut AnyObject = msg_send![class!(NSApplication), sharedApplication];
+            let delegate: *mut AnyObject = msg_send![ns_app, delegate];
+            if delegate.is_null() {
+                return;
+            }
+            let cls = ffi::object_getClass(delegate) as *mut AnyClass;
+            let imp: Imp = std::mem::transmute(
+                should_terminate as extern "C-unwind" fn(*mut AnyObject, Sel, *mut AnyObject) -> usize,
+            );
+            ffi::class_addMethod(cls, sel!(applicationShouldTerminate:), imp, c"Q@:@".as_ptr());
+            // O NSApplication guarda quais métodos o delegate tem ao recebê-lo.
+            let _: () = msg_send![ns_app, setDelegate: delegate];
+        }
+    }
 }
 
 /// Caminhos de arquivo passados na linha de comando (ex.: dois cliques num .txt no Windows).
@@ -270,16 +350,20 @@ pub fn run() {
         .expect("falha ao iniciar o aplicativo");
 
     app.run(|_app, _event| {
-        // No macOS, arquivos abertos pelo Finder chegam por este evento,
-        // inclusive com o app já aberto.
         #[cfg(target_os = "macos")]
-        if let tauri::RunEvent::Opened { urls } = _event {
-            let paths = urls
-                .into_iter()
-                .filter_map(|url| url.to_file_path().ok())
-                .map(|path| path.to_string_lossy().into_owned())
-                .collect();
-            queue_files(_app, paths);
+        match _event {
+            tauri::RunEvent::Ready => mac_quit::install(_app),
+            // Arquivos abertos pelo Finder chegam por este evento, inclusive
+            // com o app já aberto.
+            tauri::RunEvent::Opened { urls } => {
+                let paths = urls
+                    .into_iter()
+                    .filter_map(|url| url.to_file_path().ok())
+                    .map(|path| path.to_string_lossy().into_owned())
+                    .collect();
+                queue_files(_app, paths);
+            }
+            _ => {}
         }
     });
 }
