@@ -163,10 +163,27 @@ body.mac #titlebar {
   font-size: 11px;
 }
 
+/* No Mac o ✕ da fonte do sistema sai pequeno; o X é desenhado, no traço do +. */
+body.mac .tab .close::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1 1l8 8M9 1L1 9' stroke='black' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
 /* Abas com alterações mostram um ponto no lugar do X, como no Bloco de Notas. */
 .tab.dirty:not(:hover) .close::before {
   content: "●";
   font-size: 9px;
+}
+
+body.mac .tab.dirty:not(:hover) .close::before {
+  width: auto;
+  height: auto;
+  background: none;
+  -webkit-mask: none;
 }
 
 #new-tab {
