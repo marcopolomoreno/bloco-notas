@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Só no macOS: mesclado pelo Tauri ao Info.plist do app. Declara o português
+     para que os itens que o próprio sistema põe nos menus (Ditado, Emoji,
+     Ferramentas de Escrita, menu de contexto) também apareçam em português. -->
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>pt-BR</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>pt-BR</string>
+	</array>
+</dict>
+</plist>
