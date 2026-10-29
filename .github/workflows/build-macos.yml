@@ -32,5 +32,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Bloquinho-macOS
+          name: Bloco-de-Notas-macOS
           path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg

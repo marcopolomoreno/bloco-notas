@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    bloquinho_lib::run()
+    bloco_notas_lib::run()
 }

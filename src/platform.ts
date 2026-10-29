@@ -1,4 +1,4 @@
-export const APP_NAME = "Bloquinho";
+export const APP_NAME = "Bloco de Notas";
 
 export const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 

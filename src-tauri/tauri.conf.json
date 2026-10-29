@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Bloquinho",
+  "productName": "Bloco de Notas",
   "version": "0.1.0",
-  "identifier": "com.bloquinho.app",
+  "identifier": "com.marcopolomoreno.bloconotas",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Bloquinho",
+        "title": "Bloco de Notas",
         "width": 900,
         "height": 640,
         "minWidth": 420,

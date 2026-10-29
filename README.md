@@ -1,4 +1,4 @@
-# Bloquinho
+# Bloco de Notas
 
 Bloco de notas leve para macOS, inspirado no Bloco de Notas do Windows 11.
 Feito com [Tauri 2](https://tauri.app) (Rust + WebKit do sistema) e
@@ -24,8 +24,8 @@ Feito com [Tauri 2](https://tauri.app) (Rust + WebKit do sistema) e
 
 ## Onde a sessão fica guardada
 
-- macOS: `~/Library/Application Support/com.bloquinho.app/session/`
-- Windows: `%APPDATA%\com.bloquinho.app\session\`
+- macOS: `~/Library/Application Support/com.marcopolomoreno.bloconotas/session/`
+- Windows: `%APPDATA%\com.marcopolomoreno.bloconotas\session\`
 
 `session.json` guarda a lista de abas; `buffers/` tem o texto de cada aba.
 
@@ -59,7 +59,7 @@ Sem Mac, use o GitHub: suba o projeto para um repositório e rode o workflow
 fica disponível para download no final da execução.
 
 O app não é assinado. Na primeira vez, no Mac, clique com o botão direito no
-app → **Abrir**, ou rode `xattr -cr /Applications/Bloquinho.app`. Para
+app → **Abrir**, ou rode `xattr -cr "/Applications/Bloco de Notas.app"`. Para
 distribuir sem esse aviso é preciso uma conta Apple Developer (assinatura +
 notarização).
 

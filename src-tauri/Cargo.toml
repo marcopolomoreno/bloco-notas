@@ -1,11 +1,11 @@
 [package]
-name = "bloquinho"
+name = "bloco-notas"
 version = "0.1.0"
 description = "Bloco de notas leve, com abas e sessão que sobrevive ao fechar o app"
 edition = "2021"
 
 [lib]
-name = "bloquinho_lib"
+name = "bloco_notas_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
