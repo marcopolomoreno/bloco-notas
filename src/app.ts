@@ -318,14 +318,10 @@ export class App {
     };
   }
 
-  private insertTab(tab: Tab) {
-    const index = this.active ? this.tabs.indexOf(this.active) + 1 : this.tabs.length;
-    this.tabs.splice(index, 0, tab);
-  }
-
   newTab() {
     const tab = this.createTab({});
-    this.insertTab(tab);
+    // Como no Bloco de Notas: abas novas e arquivos abertos vão para o final.
+    this.tabs.push(tab);
     this.activate(tab);
   }
 
@@ -446,7 +442,7 @@ export class App {
       this.active = null;
       void backend.deleteBuffer(current.id).catch(() => {});
     } else {
-      this.insertTab(tab);
+      this.tabs.push(tab);
     }
     this.activate(tab);
   }
