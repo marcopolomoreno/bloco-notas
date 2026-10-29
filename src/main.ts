@@ -8,6 +8,13 @@ import { installHtmlMenu, installKeyboard, installNativeMenu } from "./ui/menus"
 
 async function start() {
   document.body.classList.toggle("mac", isMac);
+  // Fora do texto, o menu de contexto do WebKit só oferece "Reload" (que
+  // recarregaria a interface) e itens em inglês.
+  if (isMac) {
+    document.addEventListener("contextmenu", (e) => {
+      if (!(e.target as Element).closest(".cm-content, input")) e.preventDefault();
+    });
+  }
 
   const app = new App();
   await app.restore();
