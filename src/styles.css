@@ -88,9 +88,10 @@ button {
   padding: 0 8px;
 }
 
-/* Espaço para os botões de fechar/minimizar/maximizar do macOS. */
+/* Espaço para os botões de fechar/minimizar/maximizar do macOS, que
+   trafficLightPosition (tauri.conf.json) alinha com o centro das abas. */
 body.mac #titlebar {
-  padding-left: 80px;
+  padding-left: 86px;
 }
 
 #tabs {
