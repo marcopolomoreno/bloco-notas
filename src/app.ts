@@ -174,7 +174,9 @@ export class App {
 
   async run(id: CommandId, source: "key" | "menu" = "menu"): Promise<void> {
     if (isModalOpen()) return;
-    // No Mac o mesmo atalho pode chegar pelo menu nativo e pelo teclado.
+    // No Mac o WKWebView entrega Cmd+tecla primeiro à página e só repassa ao
+    // menu nativo se ela não chamar preventDefault (installKeyboard chama).
+    // Isto é só uma proteção caso algum atalho chegue pelos dois caminhos.
     if (isMac) {
       const now = performance.now();
       const last = this.lastCommand;
