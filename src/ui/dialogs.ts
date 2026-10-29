@@ -1,8 +1,26 @@
 import { APP_NAME } from "../platform";
 
 let openModals = 0;
+let nativeDialogs = 0;
 
-export const isModalOpen = () => openModals > 0;
+export const isModalOpen = () => openModals > 0 || nativeDialogs > 0;
+
+/** Verdadeiro enquanto uma janela nativa de abrir/salvar está aberta. */
+export const isNativeDialogOpen = () => nativeDialogs > 0;
+
+/**
+ * Marca uma janela nativa de abrir/salvar como aberta até ela fechar. No Mac
+ * ela não bloqueia a página: os atalhos com Cmd que ela não usa chegam ao
+ * editor por trás.
+ */
+export async function nativeDialog<T>(dialog: Promise<T>): Promise<T> {
+  nativeDialogs++;
+  try {
+    return await dialog;
+  } finally {
+    nativeDialogs--;
+  }
+}
 
 interface DialogButton<T> {
   label: string;

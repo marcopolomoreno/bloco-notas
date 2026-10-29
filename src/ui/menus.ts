@@ -12,13 +12,18 @@ import {
   type ToggleSetting,
 } from "../commands";
 import { APP_NAME, isMac } from "../platform";
-import { isModalOpen } from "./dialogs";
+import { isModalOpen, isNativeDialogOpen } from "./dialogs";
 
 /** Atalhos de teclado, tratados antes do editor para não haver conflito. */
 export function installKeyboard(app: App) {
   window.addEventListener(
     "keydown",
     (e) => {
+      if (isNativeDialogOpen()) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
       if (isModalOpen() || e.isComposing) return;
       const modOnly = (isMac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey) && !e.altKey && !e.shiftKey;
       if (modOnly && /^Digit[1-9]$/.test(e.code)) {

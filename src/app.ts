@@ -8,7 +8,7 @@ import { backend, type Encoding, type LineEnding } from "./backend";
 import type { CommandId } from "./commands";
 import { createEditorState, optionEffects } from "./editor";
 import { APP_NAME, DEFAULT_LINE_ENDING, isMac } from "./platform";
-import { askToSave, isModalOpen, popupMenu, showMessage } from "./ui/dialogs";
+import { askToSave, isModalOpen, nativeDialog, popupMenu, showMessage } from "./ui/dialogs";
 
 export interface Settings {
   wordWrap: boolean;
@@ -407,7 +407,7 @@ export class App {
   // -------------------------------------------------------------------------
 
   private async openWithDialog() {
-    const picked = await openDialog({ multiple: true, directory: false, title: "Abrir" });
+    const picked = await nativeDialog(openDialog({ multiple: true, directory: false, title: "Abrir" }));
     if (!picked) return this.view.focus();
     await this.openFiles(Array.isArray(picked) ? picked : [picked]);
   }
@@ -461,7 +461,9 @@ export class App {
     let path = tab.path;
     if (!path || saveAs) {
       if (tab !== this.active) this.activate(tab);
-      path = await saveDialog({ title: saveAs ? "Salvar como" : "Salvar", defaultPath: this.suggestedFileName(tab) });
+      path = await nativeDialog(
+        saveDialog({ title: saveAs ? "Salvar como" : "Salvar", defaultPath: this.suggestedFileName(tab) }),
+      );
       if (!path) {
         this.view.focus();
         return false;
