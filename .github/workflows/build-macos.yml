@@ -1,0 +1,36 @@
+# Gera o .dmg para macOS (Apple Silicon e Intel) numa máquina Mac do GitHub.
+# Rode pela aba "Actions" do repositório ou criando uma tag "v0.1.0".
+name: Build macOS
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - run: npm ci
+
+      - run: npm run tauri build -- --target universal-apple-darwin --bundles app,dmg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Bloquinho-macOS
+          path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg

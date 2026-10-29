@@ -1,0 +1,395 @@
+:root {
+  --ui-font: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --mono-font: ui-monospace, "SF Mono", Menlo, "Cascadia Mono", Consolas, monospace;
+  --font-size: 14px;
+
+  --bg-chrome: #f3f3f3;
+  --bg-editor: #fbfbfb;
+  --bg-tab-hover: #e8e8e8;
+  --fg: #1b1b1b;
+  --fg-muted: #5f5f5f;
+  --border: #e3e3e3;
+  --accent: #005fb8;
+  --accent-fg: #ffffff;
+  --selection: #cce4f7;
+  --match: #fff3a8;
+  --match-border: #e2c64d;
+  --control-bg: #ffffff;
+  --control-border: #d6d6d6;
+  --control-hover: #f0f0f0;
+  --menu-bg: #f9f9f9;
+  --menu-hover: rgba(0, 0, 0, 0.06);
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.06);
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-chrome: #202020;
+    --bg-editor: #282828;
+    --bg-tab-hover: #2d2d2d;
+    --fg: #e6e6e6;
+    --fg-muted: #a3a3a3;
+    --border: #161616;
+    --accent: #60cdff;
+    --accent-fg: #000000;
+    --selection: #264f78;
+    --match: #5c4b12;
+    --match-border: #8a7322;
+    --control-bg: #2f2f2f;
+    --control-border: #3c3c3c;
+    --control-hover: #373737;
+    --menu-bg: #2c2c2c;
+    --menu-hover: rgba(255, 255, 255, 0.08);
+    --shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-chrome);
+  color: var(--fg);
+  font: 13px/1.4 var(--ui-font);
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* --- Abas ---------------------------------------------------------------- */
+
+#titlebar {
+  display: flex;
+  align-items: flex-end;
+  flex: none;
+  height: 40px;
+  padding: 0 8px;
+}
+
+/* Espaço para os botões de fechar/minimizar/maximizar do macOS. */
+body.mac #titlebar {
+  padding-left: 80px;
+}
+
+#tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 0;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+#tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 1 220px;
+  min-width: 96px;
+  height: 33px;
+  padding: 0 4px 0 12px;
+  border-radius: 8px 8px 0 0;
+  color: var(--fg-muted);
+}
+
+.tab:hover {
+  background: var(--bg-tab-hover);
+}
+
+.tab.active {
+  background: var(--bg-editor);
+  color: var(--fg);
+}
+
+.tab.dragging {
+  opacity: 0.75;
+}
+
+.tab .title {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tab .close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+}
+
+.tab .close:hover {
+  background: var(--menu-hover);
+}
+
+.tab .close::before {
+  content: "✕";
+  font-size: 11px;
+}
+
+/* Abas com alterações mostram um ponto no lugar do X, como no Bloco de Notas. */
+.tab.dirty:not(:hover) .close::before {
+  content: "●";
+  font-size: 9px;
+}
+
+#new-tab {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 30px;
+  margin: 0 0 2px 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+}
+
+#new-tab:hover {
+  background: var(--bg-tab-hover);
+}
+
+.drag-fill {
+  flex: 1;
+  align-self: stretch;
+  min-width: 40px;
+}
+
+/* --- Menus (Windows/Linux) ---------------------------------------------- */
+
+#menubar {
+  display: flex;
+  gap: 2px;
+  flex: none;
+  padding: 4px 6px;
+  background: var(--bg-editor);
+  border-bottom: 1px solid var(--border);
+}
+
+body.mac #menubar {
+  display: none;
+}
+
+.menubar-button {
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+}
+
+.menubar-button:hover,
+.menubar-button.open {
+  background: var(--menu-hover);
+}
+
+.menu-dropdown,
+.popup-menu {
+  position: fixed;
+  z-index: 10;
+  min-width: 220px;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--menu-bg);
+  box-shadow: var(--shadow);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 10px 6px 4px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  text-align: left;
+}
+
+.menu-item:hover {
+  background: var(--menu-hover);
+}
+
+.menu-check {
+  width: 22px;
+  text-align: center;
+  color: var(--fg);
+}
+
+.menu-label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.menu-keys {
+  padding-left: 24px;
+  color: var(--fg-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.menu-separator {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--control-border);
+}
+
+/* --- Editor -------------------------------------------------------------- */
+
+#editor {
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-editor);
+}
+
+#editor .cm-editor {
+  height: 100%;
+}
+
+#editor .cm-editor.cm-focused {
+  outline: none;
+}
+
+.cm-content,
+.cm-panels input {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.cm-scroller {
+  cursor: text;
+}
+
+/* --- Barra de status ----------------------------------------------------- */
+
+#statusbar {
+  display: flex;
+  align-items: center;
+  flex: none;
+  height: 26px;
+  padding: 0 6px;
+  background: var(--bg-chrome);
+  border-top: 1px solid var(--border);
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+#statusbar > * {
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+#statusbar > * + * {
+  border-left: 1px solid var(--control-border);
+}
+
+#sb-pos {
+  margin-right: auto;
+  border-left: 0 !important;
+}
+
+#statusbar button {
+  height: 20px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+}
+
+#statusbar button:hover {
+  background: var(--menu-hover);
+}
+
+/* --- Diálogos ------------------------------------------------------------ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.dialog {
+  width: min(420px, calc(100vw - 32px));
+  padding: 20px 20px 16px;
+  border-radius: 10px;
+  background: var(--menu-bg);
+  box-shadow: var(--shadow);
+}
+
+.dialog h2 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.dialog p {
+  margin: 0 0 20px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dialog-buttons button {
+  min-width: 92px;
+  padding: 6px 14px;
+  border: 1px solid var(--control-border);
+  border-radius: 5px;
+  background: var(--control-bg);
+}
+
+.dialog-buttons button:hover {
+  background: var(--control-hover);
+}
+
+.dialog-buttons button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.dialog-buttons button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
